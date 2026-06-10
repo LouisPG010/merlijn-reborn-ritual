@@ -1,0 +1,1035 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>The Reborn Ritual — Showcase</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@400;700;900&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --zwart: #1a1a18;
+      --wit: #ffffff;
+      --geel: #FFE602;
+      --display: 'Bebas Neue', Impact, sans-serif;
+      --body: 'Barlow Condensed', Arial Narrow, sans-serif;
+    }
+
+    html { scroll-behavior: smooth; }
+    body {
+      background: var(--wit);
+      color: var(--zwart);
+      font-family: var(--body);
+      overflow-x: hidden;
+      cursor: none;
+    }
+
+    /* ── Cursor ── */
+    #cursor {
+      position: fixed;
+      width: 10px; height: 10px;
+      background: var(--zwart);
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 9999;
+      transform: translate(-50%,-50%);
+      transition: transform .1s, width .3s, height .3s, background .3s;
+      mix-blend-mode: difference;
+    }
+    #cursor-ring {
+      position: fixed;
+      width: 36px; height: 36px;
+      border: 1.5px solid var(--zwart);
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 9998;
+      transform: translate(-50%,-50%);
+      transition: left .12s ease, top .12s ease, width .3s, height .3s, opacity .3s;
+      mix-blend-mode: difference;
+    }
+    body:has(section:hover) #cursor { background: var(--zwart); }
+
+    /* ── Progress bar ── */
+    #prog {
+      position: fixed; top: 0; left: 0;
+      height: 3px; background: var(--zwart);
+      width: 0; z-index: 9997;
+      transition: width .08s;
+    }
+
+    /* ── Side nav dots ── */
+    #sidenav {
+      position: fixed;
+      right: 1.2rem;
+      top: 50%;
+      transform: translateY(-50%);
+      z-index: 500;
+      display: flex;
+      flex-direction: column;
+      gap: .6rem;
+    }
+    .dot {
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      border: 1.5px solid var(--zwart);
+      background: transparent;
+      cursor: pointer;
+      transition: background .3s, transform .3s;
+    }
+    .dot.active { background: var(--zwart); transform: scale(1.4); }
+
+    /* ── Reveal animations ── */
+    .rv         { opacity: 0; transform: translateY(40px);  transition: opacity .8s ease, transform .8s ease; }
+    .rv-left    { opacity: 0; transform: translateX(-50px); transition: opacity .8s ease, transform .8s ease; }
+    .rv-right   { opacity: 0; transform: translateX(50px);  transition: opacity .8s ease, transform .8s ease; }
+    .rv-scale   { opacity: 0; transform: scale(.92);        transition: opacity .9s ease, transform .9s ease; }
+    .rv.in, .rv-left.in, .rv-right.in, .rv-scale.in { opacity: 1; transform: none; }
+    .d1 { transition-delay: .1s; }
+    .d2 { transition-delay: .22s; }
+    .d3 { transition-delay: .38s; }
+    .d4 { transition-delay: .55s; }
+    .d5 { transition-delay: .7s; }
+
+    /* ── Split-text spans ── */
+    .split-word {
+      display: inline-block;
+      overflow: hidden;
+    }
+    .split-word span {
+      display: inline-block;
+      transform: translateY(110%);
+      transition: transform .7s cubic-bezier(.16,1,.3,1);
+    }
+    .split-word.in span { transform: translateY(0); }
+
+    /* ─────────────────────────
+       P1 — SHOWCASE
+    ───────────────────────── */
+    #p1 {
+      min-height: 100vh;
+      background: var(--wit);
+      display: flex;
+      align-items: flex-end;
+      justify-content: flex-end;
+      padding: 3vw 4vw;
+      position: relative;
+      overflow: hidden;
+    }
+    #p1::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: var(--geel);
+      transform: scaleX(0);
+      transform-origin: left;
+      transition: transform 1.2s cubic-bezier(.16,1,.3,1);
+      z-index: 0;
+    }
+    #p1.loaded::before { transform: scaleX(1); }
+    #p1.loaded2::before { transform-origin: right; transform: scaleX(0); }
+
+    .p1-blok { text-align: right; line-height: .86; position: relative; z-index: 1; }
+    .p1-show, .p1-case {
+      font-family: var(--display);
+      font-size: clamp(7rem, 18vw, 21rem);
+      color: var(--zwart);
+      display: block;
+    }
+    .p1-sub {
+      font-family: var(--display);
+      font-size: clamp(1.8rem, 4.5vw, 5rem);
+      color: var(--zwart);
+      display: block;
+      margin-top: .4em;
+      letter-spacing: .04em;
+    }
+    .p1-scroll-hint {
+      position: absolute;
+      bottom: 2.5rem; left: 50%;
+      transform: translateX(-50%);
+      display: flex; flex-direction: column; align-items: center; gap: .5rem;
+      opacity: 0; animation: fadeIn 1s ease 2s forwards;
+    }
+    .p1-scroll-hint span {
+      font-family: var(--body); font-size: .65rem;
+      letter-spacing: .25em; text-transform: uppercase; color: var(--zwart);
+    }
+    .scroll-line {
+      width: 1px; height: 40px; background: var(--zwart);
+      animation: scrollPulse 1.8s ease-in-out infinite;
+    }
+    @keyframes scrollPulse { 0%,100%{opacity:.2;transform:scaleY(.7)} 50%{opacity:1;transform:scaleY(1)} }
+    @keyframes fadeIn { to { opacity: 1; } }
+
+    /* ─────────────────────────
+       P2 — AANLEIDING
+    ───────────────────────── */
+    #p2 { min-height: 100vh; display: grid; grid-template-columns: 1fr 1fr; }
+    .p2-links { background: var(--wit); padding: 5vw; display: flex; align-items: center; }
+    .p2-aanleiding {
+      font-family: var(--display);
+      font-size: clamp(4rem, 9.5vw, 10rem);
+      line-height: .86;
+    }
+    .p2-amp {
+      font-family: var(--body); font-weight: 900; font-style: italic;
+      font-size: clamp(4rem, 9.5vw, 10rem);
+      line-height: .86; display: block;
+    }
+    .p2-onderzoeks {
+      font-family: var(--body); font-weight: 400;
+      font-size: clamp(2rem, 4.8vw, 5rem);
+      line-height: 1.05; display: block;
+      border: 3px solid var(--zwart);
+      padding: .08em .18em; margin-top: .25em;
+    }
+    .p2-rechts {
+      background: var(--zwart);
+      display: flex; align-items: center; justify-content: center;
+      overflow: hidden; position: relative;
+    }
+    .p2-rechts svg {
+      width: 55%; max-width: 280px;
+      animation: cassetteSpin 8s linear infinite;
+      transform-origin: center;
+    }
+    @keyframes cassetteSpin {
+      0%,100%{transform:rotate(0deg)} 20%{transform:rotate(5deg)} 80%{transform:rotate(-5deg)}
+    }
+
+    /* ─────────────────────────
+       P3 — FOTO'S AANLEIDING
+    ───────────────────────── */
+    #p3 { min-height: 100vh; display: grid; grid-template-columns: 1fr 1fr; }
+    .p3-links { overflow: hidden; position: relative; }
+    .p3-links img {
+      width: 100%; height: 100%; object-fit: cover; display: block;
+      transition: transform .8s ease;
+    }
+    .p3-links:hover img { transform: scale(1.04); }
+    .p3-rechts {
+      background: var(--wit); padding: 5vw;
+      display: flex; flex-direction: column; justify-content: space-between; gap: 3rem;
+    }
+    .p3-foto-boven img {
+      width: 100%; display: block; object-fit: cover; max-height: 42vh;
+      transition: transform .6s ease;
+    }
+    .p3-foto-boven:hover img { transform: scale(1.02); }
+    .p3-caption { font-family: var(--body); font-size: clamp(.9rem, 1.7vw, 1.3rem); margin-top: .8rem; }
+    .p3-norm { font-family: var(--body); font-size: clamp(.9rem, 1.7vw, 1.3rem); line-height: 1.4; }
+    .p3-bold {
+      font-family: var(--body); font-weight: 700;
+      font-size: clamp(1.1rem, 2.2vw, 1.8rem); display: block; margin-top: .2em;
+    }
+    .p3-adres { font-family: var(--body); font-size: clamp(.8rem, 1.3vw, 1.1rem); display: block; }
+
+    /* ─────────────────────────
+       P4 — ONDERZOEKSVRAAG (ZWART)
+    ───────────────────────── */
+    #p4 {
+      min-height: 100vh; background: var(--zwart);
+      display: grid; grid-template-columns: 1fr 1fr;
+      align-items: center; padding: 5vw 4vw; gap: 3vw;
+      position: relative; overflow: hidden;
+    }
+    #p4::after {
+      content: '';
+      position: absolute; inset: 0;
+      background: var(--geel);
+      clip-path: circle(0% at 50% 50%);
+      transition: clip-path 1.2s ease;
+      pointer-events: none;
+      z-index: 0;
+    }
+    #p4.in-view::after { clip-path: circle(0% at 50% 50%); }
+    .p4-links, .p4-rechts {
+      font-family: var(--display); color: var(--wit);
+      position: relative; z-index: 1;
+    }
+    .p4-links { font-size: clamp(2.4rem, 5.5vw, 6.5rem); line-height: .88; }
+    .p4-rechts { font-size: clamp(3rem, 7vw, 8.5rem); line-height: .88; }
+
+    /* ─────────────────────────
+       P5 — 3-DELIG ONDERZOEK
+    ───────────────────────── */
+    #p5 { min-height: 100vh; display: grid; grid-template-columns: 1fr 1fr; }
+    .p5-links { background: var(--zwart); padding: 4vw; display: flex; align-items: flex-end; }
+    .p5-inner { display: flex; align-items: flex-end; }
+    .p5-drie {
+      font-family: var(--display);
+      font-size: clamp(11rem, 26vw, 30rem);
+      line-height: .8; color: transparent;
+      -webkit-text-stroke: 2px var(--wit);
+    }
+    .p5-woorden { padding-bottom: .5rem; }
+    .p5-delig, .p5-onder, .p5-zoek {
+      font-family: var(--display); color: var(--wit); line-height: .88; display: block;
+    }
+    .p5-delig { font-size: clamp(3.2rem, 7.5vw, 9rem); }
+    .p5-onder { font-size: clamp(2.8rem, 6.5vw, 7.5rem); }
+    .p5-zoek  { font-size: clamp(2.8rem, 6.5vw, 7.5rem); }
+    .p5-rechts {
+      background: var(--wit); border-left: 1px solid #ccc;
+      padding: 5vw 4vw; display: flex; flex-direction: column; justify-content: center;
+    }
+    .p5-intro {
+      font-family: var(--body); font-weight: 700;
+      font-size: clamp(.85rem, 1.5vw, 1.2rem);
+      text-align: center; max-width: 360px; align-self: center; margin-bottom: 4vw;
+    }
+    .p5-item { margin-bottom: 3vw; }
+    .p5-num {
+      font-family: var(--display);
+      font-size: clamp(2.5rem, 5vw, 5.5rem);
+      display: block; line-height: 1;
+      transition: transform .3s ease;
+    }
+    .p5-item:hover .p5-num { transform: translateX(8px); }
+    .p5-naam {
+      font-family: var(--body); font-weight: 700;
+      font-size: clamp(.75rem, 1.3vw, 1.1rem);
+      letter-spacing: .1em; text-transform: uppercase;
+      display: block; margin-top: -.1em;
+    }
+
+    /* ─────────────────────────
+       P6 — THEORIE (GEEL)
+    ───────────────────────── */
+    #p6 {
+      min-height: 100vh; background: var(--geel);
+      display: grid; grid-template-columns: 1fr 1fr;
+      padding: 5vw 4vw; gap: 4vw; align-items: start;
+    }
+    .p6-by { font-family: var(--body); font-weight: 700; font-size: clamp(.85rem, 1.6vw, 1.3rem); display: block; margin-bottom: .05em; }
+    .p6-concept {
+      font-family: var(--display);
+      font-size: clamp(3.8rem, 10vw, 11rem);
+      line-height: .84; display: block; margin-bottom: 1.8rem;
+    }
+    .p6-rij { display: grid; grid-template-columns: 1fr auto; gap: 1.4rem; align-items: start; }
+    .p6-tekst { font-family: var(--body); font-size: clamp(.8rem, 1.4vw, 1.1rem); line-height: 1.55; }
+    .p6-tekst p + p { margin-top: .7em; }
+    .p6-tekst strong { font-weight: 700; }
+    .p6-portret {
+      width: clamp(70px, 11vw, 140px);
+      object-fit: cover; object-position: top;
+      filter: grayscale(100%); display: block;
+      transition: filter .4s;
+    }
+    .p6-portret:hover { filter: grayscale(0%); }
+
+    /* ─────────────────────────
+       P7 — MAATSCHAPPIJ FOTO
+    ───────────────────────── */
+    #p7 { position: relative; overflow: hidden; }
+    #p7 img.achtergrond {
+      width: 100%; height: 75vh;
+      object-fit: cover; display: block;
+      transition: transform .1s linear;
+    }
+    .p7-labels {
+      position: absolute; top: 0; left: 0; right: 0;
+      padding: 3vw 4vw;
+      display: flex; justify-content: space-between; align-items: flex-start;
+    }
+    .p7-bubble {
+      background: var(--wit); border: 2.5px solid var(--zwart);
+      border-radius: 5px; padding: .35em .7em;
+      font-family: var(--body); font-weight: 700;
+      font-size: clamp(.8rem, 1.5vw, 1.2rem);
+      text-transform: uppercase; letter-spacing: .04em;
+      transform: translateY(-20px); opacity: 0;
+      transition: transform .6s ease, opacity .6s ease;
+    }
+    .p7-bubble.in { transform: translateY(0); opacity: 1; }
+    .p7-bubble:last-child { transition-delay: .2s; }
+
+    /* ─────────────────────────
+       P8 — KUNSTENAARS
+    ───────────────────────── */
+    #p8 { min-height: 100vh; display: grid; grid-template-columns: 1fr 1fr; border-top: 1px solid #ddd; }
+    .p8-col { padding: 4vw; display: flex; flex-direction: column; border-right: 1px solid #ddd; }
+    .p8-col:last-child { border-right: none; }
+    .p8-naam { font-family: var(--display); font-size: clamp(2.8rem, 6vw, 7rem); line-height: .88; margin-bottom: 2rem; }
+    .p8-fotos { flex: 1; display: flex; flex-direction: column; gap: 1.5rem; }
+    .p8-img-wrap { overflow: hidden; }
+    .p8-img-wrap img {
+      width: 100%; object-fit: cover; display: block;
+      transition: transform .6s ease;
+    }
+    .p8-img-wrap:hover img { transform: scale(1.04); }
+    .p8-rij { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    .p8-rij .p8-img-wrap img { height: 100%; }
+
+    /* ─────────────────────────
+       P9 — ELTJO'S VINTAGE
+    ───────────────────────── */
+    #p9 { min-height: 70vh; display: grid; grid-template-columns: 1fr 1fr; padding: 4vw; gap: 4vw; align-items: start; }
+    .p9-col { display: flex; flex-direction: column; gap: 1rem; }
+    .p9-img-wrap { overflow: hidden; }
+    .p9-img-wrap img { width: 100%; object-fit: cover; display: block; transition: transform .6s ease; }
+    .p9-img-wrap:hover img { transform: scale(1.04); }
+    .p9-label { font-family: var(--body); font-weight: 700; font-size: clamp(.75rem, 1.3vw, 1.1rem); text-transform: uppercase; letter-spacing: .08em; }
+
+    /* ─────────────────────────
+       P10 — DOELGROEP (GEEL)
+    ───────────────────────── */
+    #p10 { min-height: 100vh; background: var(--geel); display: grid; grid-template-columns: 1fr 1fr; }
+    .p10-links { padding: 5vw 4vw; display: flex; flex-direction: column; justify-content: space-between; }
+    .p10-woord {
+      font-family: var(--display);
+      font-size: clamp(5.5rem, 14vw, 16rem);
+      line-height: .82; display: block;
+    }
+    .p10-klein { font-family: var(--body); font-size: clamp(.85rem, 1.4vw, 1.15rem); line-height: 1.55; max-width: 400px; }
+    .p10-rechts { padding: 5vw 4vw; display: flex; align-items: center; border-left: 2px solid var(--zwart); }
+    .p10-body { font-family: var(--body); font-size: clamp(.9rem, 1.6vw, 1.3rem); line-height: 1.7; }
+    .p10-body p + p { margin-top: 1.2em; }
+
+    /* ─────────────────────────
+       P11 — DE SURVEY
+    ───────────────────────── */
+    #p11 { min-height: 100vh; display: grid; grid-template-columns: 1fr 1fr; }
+    .p11-links { padding: 5vw 4vw; display: flex; flex-direction: column; justify-content: space-between; }
+    .p11-titel { font-family: var(--display); font-size: clamp(4rem, 9vw, 9.5rem); line-height: .88; }
+    .p11-body { font-family: var(--body); font-size: clamp(.85rem, 1.5vw, 1.2rem); line-height: 1.65; }
+    .p11-body ul { padding-left: 1.4em; margin-top: .8em; }
+    .p11-body li { margin-bottom: .7em; }
+
+    /* Animated stat bars */
+    .stat-bar-wrap { margin-top: 1.2rem; }
+    .stat-row { display: flex; align-items: center; gap: 1rem; margin-bottom: .7rem; }
+    .stat-pct {
+      font-family: var(--display); font-size: clamp(2rem, 4vw, 3.5rem);
+      min-width: 5ch; color: var(--zwart);
+    }
+    .stat-track {
+      flex: 1; height: 4px; background: rgba(0,0,0,.15); border-radius: 2px; overflow: hidden;
+    }
+    .stat-fill {
+      height: 100%; background: var(--zwart); width: 0;
+      transition: width 1.4s cubic-bezier(.16,1,.3,1);
+      border-radius: 2px;
+    }
+    .stat-label { font-family: var(--body); font-size: clamp(.75rem, 1.2vw, 1rem); color: var(--zwart); opacity: .75; }
+
+    .p11-themas { display: flex; flex-direction: column; gap: .3rem; margin-top: 1rem; }
+    .p11-thema { display: flex; align-items: center; gap: .9rem; }
+    .p11-bol { background: var(--zwart); border-radius: 50%; flex-shrink: 0; }
+    .p11-woord { font-family: var(--display); font-size: clamp(1.8rem, 3.8vw, 3.5rem); line-height: 1; }
+    .p11-rechts { overflow: hidden; }
+    .p11-rechts img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform .1s linear; }
+
+    /* ─────────────────────────
+       P12 — RITUALS
+    ───────────────────────── */
+    #p12 { min-height: 100vh; display: grid; grid-template-columns: 1fr 1fr; }
+    .p12-links { position: relative; overflow: hidden; }
+    .p12-links img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform .1s linear; }
+    .p12-rituals {
+      position: absolute; bottom: 0; left: 0; right: 0; padding: 3vw;
+      font-family: var(--display);
+      font-size: clamp(4rem, 10vw, 11rem);
+      color: var(--wit); line-height: .88;
+      transform: translateY(30px); opacity: 0;
+      transition: transform .8s ease, opacity .8s ease;
+    }
+    .p12-rituals.in { transform: none; opacity: 1; }
+    .p12-rechts { background: var(--wit); padding: 5vw 4vw; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 3rem; }
+    .p12-titel { font-family: var(--display); font-size: clamp(2rem, 4.2vw, 4.2rem); line-height: 1.05; text-align: center; }
+    .p12-schets { width: 100%; max-width: 280px; display: block; }
+
+    /* ─────────────────────────
+       PROTOTYPES
+    ───────────────────────── */
+    .proto { min-height: 100vh; display: grid; grid-template-columns: 1fr 1fr; border-top: 1px solid #e0e0e0; }
+    .proto-links { padding: 4vw; display: flex; align-items: flex-end; }
+    .proto-nr, .proto-proto, .proto-type {
+      font-family: var(--display); color: var(--zwart); display: block;
+    }
+    .proto-nr    { font-size: clamp(9rem, 20vw, 23rem); line-height: .82; }
+    .proto-proto { font-size: clamp(4.5rem, 11vw, 13rem); line-height: .82; }
+    .proto-type  { font-size: clamp(4.5rem, 11vw, 13rem); line-height: .82; }
+    .proto-rechts { padding: 4vw; display: flex; flex-direction: column; gap: 1.5rem; border-left: 1px solid #e0e0e0; justify-content: center; }
+    .proto-img-wrap { overflow: hidden; }
+    .proto-img-wrap img { width: 100%; object-fit: cover; display: block; transition: transform .6s ease; }
+    .proto-img-wrap:hover img { transform: scale(1.04); }
+    .proto-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; flex: 1; }
+    .proto-grid .proto-img-wrap { height: 100%; }
+    .proto-grid .proto-img-wrap img { height: 100%; }
+
+    /* ─────────────────────────
+       FOTO SPREADS
+    ───────────────────────── */
+    .spread { display: block; line-height: 0; overflow: hidden; }
+    .spread img { width: 100%; height: auto; display: block; transition: transform .1s linear; }
+
+    /* ─────────────────────────
+       MEDIA QUERIES
+    ───────────────────────── */
+
+    /* Tablet: 480–900px */
+    @media (max-width: 900px) {
+      #sidenav { display: none; }
+      #cursor, #cursor-ring { display: none; }
+      body { cursor: auto; }
+
+      #p2, #p3, #p5, #p8 { grid-template-columns: 1fr; }
+      #p4 { grid-template-columns: 1fr; padding: 8vw 6vw; gap: 4vw; }
+      #p6 { grid-template-columns: 1fr; }
+      #p9 { grid-template-columns: 1fr; }
+      #p10 { grid-template-columns: 1fr; }
+      #p11 { grid-template-columns: 1fr; }
+      #p12 { grid-template-columns: 1fr; }
+      .proto { grid-template-columns: 1fr; }
+
+      .p2-rechts { min-height: 50vw; }
+      .p3-links  { min-height: 55vw; }
+      .p11-rechts { min-height: 50vw; }
+      .p12-links  { min-height: 60vw; }
+
+      #p6 { padding: 8vw 6vw; gap: 6vw; }
+      .p6-concept { font-size: clamp(4rem, 14vw, 8rem); }
+
+      .p8-col { border-right: none; border-bottom: 1px solid #ddd; }
+      .p8-col:last-child { border-bottom: none; }
+
+      .proto-rechts { border-left: none; border-top: 1px solid #e0e0e0; }
+    }
+
+    /* Mobile: <480px */
+    @media (max-width: 480px) {
+      #p1 { padding: 5vw; align-items: center; justify-content: center; text-align: center; }
+      .p1-blok { text-align: center; }
+      .p1-show, .p1-case { font-size: clamp(5rem, 20vw, 8rem); }
+      .p1-sub { font-size: clamp(1.2rem, 5vw, 2rem); }
+
+      .p2-links { padding: 8vw 6vw; }
+      .p2-aanleiding { font-size: clamp(3rem, 14vw, 6rem); }
+      .p2-amp { font-size: clamp(3rem, 14vw, 6rem); }
+      .p2-onderzoeks { font-size: clamp(1.6rem, 8vw, 3.5rem); }
+
+      #p4 { padding: 8vw 6vw; }
+      .p4-links { font-size: clamp(2rem, 8vw, 4rem); }
+      .p4-rechts { font-size: clamp(2.4rem, 9.5vw, 5rem); }
+
+      .p5-drie { font-size: clamp(8rem, 32vw, 14rem); }
+      .p5-delig { font-size: clamp(2.5rem, 10vw, 5rem); }
+      .p5-onder, .p5-zoek { font-size: clamp(2.2rem, 9vw, 4.5rem); }
+
+      .p6-concept { font-size: clamp(3.5rem, 16vw, 7rem); }
+
+      #p7 img.achtergrond { height: 55vw; }
+      .p7-bubble { font-size: clamp(.65rem, 3vw, 1rem); }
+
+      .p8-naam { font-size: clamp(2.2rem, 10vw, 4rem); }
+
+      .p10-woord { font-size: clamp(4.5rem, 20vw, 9rem); }
+
+      .p11-titel { font-size: clamp(3rem, 13vw, 6rem); }
+      .p11-woord { font-size: clamp(1.4rem, 7vw, 2.5rem); }
+
+      .p12-rituals { font-size: clamp(3rem, 13vw, 6rem); }
+      .p12-titel   { font-size: clamp(1.6rem, 6.5vw, 3rem); }
+
+      .proto-nr    { font-size: clamp(7rem, 28vw, 12rem); }
+      .proto-proto, .proto-type { font-size: clamp(3.5rem, 14vw, 7rem); }
+
+      .p9-col, #p9 { padding: 6vw; gap: 3vw; }
+      .p10-links, .p10-rechts { padding: 7vw 6vw; }
+      .p11-links  { padding: 7vw 6vw; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Cursor -->
+<div id="cursor"></div>
+<div id="cursor-ring"></div>
+
+<!-- Progress -->
+<div id="prog"></div>
+
+<!-- Side nav dots -->
+<nav id="sidenav">
+  <div class="dot" data-target="p1"></div>
+  <div class="dot" data-target="p2"></div>
+  <div class="dot" data-target="p3"></div>
+  <div class="dot" data-target="p4"></div>
+  <div class="dot" data-target="p5"></div>
+  <div class="dot" data-target="p6"></div>
+  <div class="dot" data-target="p7"></div>
+  <div class="dot" data-target="p8"></div>
+  <div class="dot" data-target="p9"></div>
+  <div class="dot" data-target="p10"></div>
+  <div class="dot" data-target="p11"></div>
+  <div class="dot" data-target="p12"></div>
+  <div class="dot" data-target="p13"></div>
+  <div class="dot" data-target="p14"></div>
+  <div class="dot" data-target="p15"></div>
+</nav>
+
+<!-- ══════════════════════════
+     P1 — SHOWCASE
+══════════════════════════ -->
+<section id="p1">
+  <div class="p1-blok">
+    <span class="p1-show split-word rv"><span>SHOW</span></span>
+    <span class="p1-case split-word rv d1"><span>CASE</span></span>
+    <span class="p1-sub rv d3">THE REBORN RITUAL</span>
+  </div>
+  <div class="p1-scroll-hint">
+    <span>Scroll</span>
+    <div class="scroll-line"></div>
+  </div>
+</section>
+
+<!-- ══════════════════════════
+     P2 — AANLEIDING
+══════════════════════════ -->
+<section id="p2">
+  <div class="p2-links">
+    <div class="rv-left">
+      <span class="p2-aanleiding">AANLEI<br>DING</span>
+      <span class="p2-amp">&amp;</span>
+      <span class="p2-onderzoeks">ONDER<br>ZOEKS<br>METHO<br>DEN</span>
+    </div>
+  </div>
+  <div class="p2-rechts rv">
+    <svg viewBox="0 0 220 290" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect x="8" y="22" width="204" height="248" rx="14" stroke="white" stroke-width="6"/>
+      <rect x="38" y="8"  width="34" height="22" rx="4" stroke="white" stroke-width="4"/>
+      <rect x="148" y="8" width="34" height="22" rx="4" stroke="white" stroke-width="4"/>
+      <rect x="24" y="52" width="172" height="110" rx="7" stroke="white" stroke-width="4"/>
+      <circle cx="76"  cy="107" r="32" stroke="white" stroke-width="4"/>
+      <circle cx="76"  cy="107" r="11" stroke="white" stroke-width="3"/>
+      <line x1="76" y1="75" x2="76" y2="94" stroke="white" stroke-width="2"/>
+      <line x1="76" y1="120" x2="76" y2="139" stroke="white" stroke-width="2"/>
+      <line x1="44" y1="107" x2="63" y2="107" stroke="white" stroke-width="2"/>
+      <line x1="89" y1="107" x2="108" y2="107" stroke="white" stroke-width="2"/>
+      <circle cx="144" cy="107" r="32" stroke="white" stroke-width="4"/>
+      <circle cx="144" cy="107" r="11" stroke="white" stroke-width="3"/>
+      <line x1="144" y1="75" x2="144" y2="94" stroke="white" stroke-width="2"/>
+      <line x1="144" y1="120" x2="144" y2="139" stroke="white" stroke-width="2"/>
+      <line x1="112" y1="107" x2="131" y2="107" stroke="white" stroke-width="2"/>
+      <line x1="157" y1="107" x2="176" y2="107" stroke="white" stroke-width="2"/>
+      <path d="M76 139 Q76 165 110 165 Q144 165 144 139" stroke="white" stroke-width="3" fill="none"/>
+      <circle cx="62"  cy="235" r="9" stroke="white" stroke-width="3"/>
+      <circle cx="110" cy="235" r="9" stroke="white" stroke-width="3"/>
+      <circle cx="158" cy="235" r="9" stroke="white" stroke-width="3"/>
+      <rect x="28" y="192" width="164" height="28" rx="4" stroke="white" stroke-width="2"/>
+    </svg>
+  </div>
+</section>
+
+<!-- ══════════════════════════
+     P3 — FOTO'S AANLEIDING
+══════════════════════════ -->
+<section id="p3">
+  <div class="p3-links rv-left">
+    <img src="imgs/p3_img0.jpeg" alt="Videotheek video Palace" />
+  </div>
+  <div class="p3-rechts">
+    <div class="p3-foto-boven rv d1">
+      <img src="imgs/p3_img1.jpeg" alt="Platencollectie thuis" />
+      <p class="p3-caption">Mijn platencollectie thuis</p>
+    </div>
+    <div class="rv d3">
+      <p class="p3-norm">Het wekelijkse bezoekje in het weekend<br>met mijn vader bij</p>
+      <span class="p3-bold">Videotheek video Palace</span>
+      <span class="p3-adres">Jonker Fransstraat 26-28</span>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════
+     P4 — ONDERZOEKSVRAAG (ZWART)
+══════════════════════════ -->
+<section id="p4">
+  <div class="p4-links rv-left">
+    HOE BEINVLOED<br>
+    DIGITALISERING<br>
+    DE FYSIEKE<br>
+    &amp; RITUELE<br>
+    BELEVING VAN<br>
+    MEDIACONSUMPTIE
+  </div>
+  <div class="p4-rechts rv-right d2">
+    &amp; HOE KAN HIER<br>
+    OPNIEUW<br>
+    BETEKENIS<br>
+    AAN WORDEN<br>
+    GEGEVEN?
+  </div>
+</section>
+
+<!-- ══════════════════════════
+     P5 — 3-DELIG ONDERZOEK
+══════════════════════════ -->
+<section id="p5">
+  <div class="p5-links rv-scale">
+    <div class="p5-inner">
+      <span class="p5-drie">3</span>
+      <div class="p5-woorden">
+        <span class="p5-delig">DELIG</span>
+        <span class="p5-onder">ONDER</span>
+        <span class="p5-zoek">ZOEK</span>
+      </div>
+    </div>
+  </div>
+  <div class="p5-rechts">
+    <p class="p5-intro rv">Dit onderzoek richt zich op de<br>digitalisering van film en muziek.</p>
+    <div class="p5-item rv d1">
+      <span class="p5-num">1</span>
+      <span class="p5-naam">THEORETISCHE KOPPELING</span>
+    </div>
+    <div class="p5-item rv d2">
+      <span class="p5-num">2</span>
+      <span class="p5-naam">KUNSTENAARS INSPIRATIE</span>
+    </div>
+    <div class="p5-item rv d3">
+      <span class="p5-num">3</span>
+      <span class="p5-naam">VELD ONDERZOEK</span>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════
+     P6 — THEORIE (GEEL)
+══════════════════════════ -->
+<section id="p6">
+  <div class="p6-col rv-left">
+    <span class="p6-by">WALTER BENJAMIN's</span>
+    <span class="p6-concept">AURA</span>
+    <div class="p6-rij">
+      <div class="p6-tekst">
+        <p>Walter Benjamin beschreef in 1936 het begrip aura als de unieke aanwezigheid van een object in tijd en ruimte. Die aura komt voort uit de authenticiteit en geschiedenis van het origineel: de fysieke slijtage, de ouderdom, de plek waar het vandaan komt.</p>
+        <p>Zodra iets mechanisch reproduceerbaar wordt verdwijnt die aura. Zelfs de beste kopie mist wat het origineel uniek maakt.</p>
+        <p>Een vinylplaat heeft aura, een Spotify-bestand niet.</p>
+      </div>
+      <img src="imgs/p6_img2.jpeg" alt="Walter Benjamin" class="p6-portret" />
+    </div>
+  </div>
+  <div class="p6-col rv-right d2">
+    <span class="p6-by">VICTOR TURNER's</span>
+    <span class="p6-concept">LIMINAL<br>SPACES</span>
+    <div class="p6-rij">
+      <div class="p6-tekst">
+        <p>Victor Turner beschreef in 1969 liminale ruimtes als drempelzones buiten je dagelijkse routine waarin de tijd even stilstaat en reflectie mogelijk wordt.</p>
+        <p>Turner koppelde dit aan rituelen: kleine, bewuste handelingen die een overgang markeren. Een vinylplaat uit de hoes halen, de naald erop leggen en wachten tot het eerste geluid komt.</p>
+        <p>Fysieke media dwingt tot <strong>vertraging,</strong> en juist dat is wat steeds meer mensen missen in een steeds snellere en efficiëntere leefomgeving.</p>
+      </div>
+      <img src="imgs/p6_img3.jpeg" alt="Victor Turner" class="p6-portret" />
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════
+     P7 — MAATSCHAPPIJ FOTO
+══════════════════════════ -->
+<section id="p7">
+  <img src="imgs/p7_img4.jpeg" alt="Wat zegt dit over onze maatschappij?" class="achtergrond" />
+  <div class="p7-labels">
+    <span class="p7-bubble">WAT ZEGT DIT</span>
+    <span class="p7-bubble">OVER ONZE MAATSCHAPPIJ?</span>
+  </div>
+</section>
+
+<!-- ══════════════════════════
+     P8 — KUNSTENAARS
+══════════════════════════ -->
+<section id="p8">
+  <div class="p8-col rv-left">
+    <h2 class="p8-naam">OLAF MOOIJ</h2>
+    <div class="p8-fotos">
+      <div class="p8-img-wrap"><img src="imgs/p8_img5.jpeg" alt="Olaf Mooij werk 1" style="max-height:36vh;" /></div>
+      <div class="p8-img-wrap"><img src="imgs/p8_img6.jpeg" alt="Olaf Mooij werk 2" style="max-height:36vh;" /></div>
+    </div>
+  </div>
+  <div class="p8-col rv-right d2">
+    <h2 class="p8-naam">GYZ LA RIVIERE</h2>
+    <div class="p8-fotos">
+      <div class="p8-rij">
+        <div class="p8-img-wrap"><img src="imgs/p8_img7.jpeg" alt="Videotheek Marco" /></div>
+        <div class="p8-img-wrap"><img src="imgs/p8_img8.jpeg" alt="Home Video boek" /></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════
+     P9 — ELTJO'S VINTAGE
+══════════════════════════ -->
+<section id="p9">
+  <div class="p9-col rv-left">
+    <div class="p9-img-wrap"><img src="imgs/p9_img9.jpeg" alt="Eltjo's Vintage eigenaar" /></div>
+    <span class="p9-label">ELTJO'S VINTAGE IN SCHIEDAM</span>
+  </div>
+  <div class="p9-col rv-right d2">
+    <div class="p9-img-wrap"><img src="imgs/p9_img10.jpeg" alt="Eltjo's Vintage Polaroid winkel" /></div>
+  </div>
+</section>
+
+<!-- ══════════════════════════
+     P10 — DOELGROEP (GEEL)
+══════════════════════════ -->
+<section id="p10">
+  <div class="p10-links">
+    <div class="rv-left">
+      <span class="p10-woord">DOEL</span>
+      <span class="p10-woord">GROEP</span>
+    </div>
+    <p class="p10-klein rv d4">Mijn primaire doelgroep zijn jongvolwassenen tussen de 20 en 35 jaar. Mijn primaire doelgroep zijn jongvolwassenen tussen de 20 en 35 jaar.</p>
+  </div>
+  <div class="p10-rechts rv-right d1">
+    <div class="p10-body">
+      <p>Opgegroeid met Spotify, Netflix en YouTube als vanzelfsprekend, maar tegelijk de generatie die vinyl koopt, op analoge film fotografeert en bewust kiest voor fysieke media. Niet uit nostalgie, want ze missen niet iets wat ze zelf hebben gekend. Ze zoeken iets wat ze nooit hebben gekend: eigenaarschap, vertraging en een tastbare relatie met de media die ze consumeren. In een leven vol algoritmes en eindeloos aanbod is de keuze voor een vinylplaat een daad van autonomie.</p>
+      <p>Deze doelgroep zoekt actief naar vertraging. De constante informatieoverload vraagt om een tegengewicht, en fysieke media biedt dat. Het vraagt aandacht, beloont geduld en verankert herinneringen op een manier die een streamingplatform nooit kan. Het zijn mensen die bewust nadenken over hoe ze hun vrije tijd invullen en steeds vaker kiezen voor betekenis boven gemak.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════
+     P11 — DE SURVEY
+══════════════════════════ -->
+<section id="p11">
+  <div class="p11-links">
+    <h2 class="p11-titel rv">DE<br>SURVEY</h2>
+    <div class="p11-body rv d1">
+      <p>Uit de survey onder 15 respondenten kwam één ding duidelijk naar voren: Het gevoel van verlies aan rituele mediabeleving leeft breed.</p>
+      <ul>
+        <li>Alle 22 ervaren digitale media negatief op hun mentale staat.</li>
+        <li>87% voelt zich regelmatig overweldigd bij het gebruik van streamingdiensten.</li>
+        <li>80% zegt dat moeite doen de beleving waardevoller maakt.</li>
+      </ul>
+      <p style="margin-top:.9em">Drie thema's kwamen steeds terug:</p>
+    </div>
+
+    <div class="stat-bar-wrap rv d2">
+      <div class="stat-row">
+        <span class="stat-pct" data-target="100">0%</span>
+        <div><div class="stat-track"><div class="stat-fill" data-pct="100"></div></div>
+        <span class="stat-label">ervaart digitale media negatief</span></div>
+      </div>
+      <div class="stat-row">
+        <span class="stat-pct" data-target="87">0%</span>
+        <div><div class="stat-track"><div class="stat-fill" data-pct="87"></div></div>
+        <span class="stat-label">overweldigd door streamingdiensten</span></div>
+      </div>
+      <div class="stat-row">
+        <span class="stat-pct" data-target="80">0%</span>
+        <div><div class="stat-track"><div class="stat-fill" data-pct="80"></div></div>
+        <span class="stat-label">moeite doen maakt het waardevoller</span></div>
+      </div>
+    </div>
+
+    <div class="p11-themas rv d3">
+      <div class="p11-thema">
+        <div class="p11-bol" style="width:22px;height:22px"></div>
+        <span class="p11-woord">EIGENAARSCHAP</span>
+      </div>
+      <div class="p11-thema">
+        <div class="p11-bol" style="width:17px;height:17px"></div>
+        <span class="p11-woord">RITUEEL</span>
+      </div>
+      <div class="p11-thema">
+        <div class="p11-bol" style="width:13px;height:13px"></div>
+        <span class="p11-woord">AANDACHT</span>
+      </div>
+    </div>
+  </div>
+  <div class="p11-rechts rv-right d1">
+    <img src="imgs/p11_img11.jpeg" alt="Bandrecorder spoelen" />
+  </div>
+</section>
+
+<!-- ══════════════════════════
+     P12 — RITUALS
+══════════════════════════ -->
+<section id="p12">
+  <div class="p12-links rv-left">
+    <img src="imgs/p12_img12.jpeg" alt="Kaarsen" />
+    <div class="p12-rituals">RITUALS</div>
+  </div>
+  <div class="p12-rechts rv-right d1">
+    <h2 class="p12-titel">BEWUST VERTRAGEN &amp;<br>HET VERLANGEN<br>NAAR LIMINALE RUIMTES</h2>
+    <img src="imgs/p12_img13.png" alt="Schets kerk altaar" class="p12-schets" />
+  </div>
+</section>
+
+<!-- ══════════════════════════
+     P13 — 1e PROTOTYPE
+══════════════════════════ -->
+<section class="proto" id="p13">
+  <div class="proto-links rv-left">
+    <div>
+      <span class="proto-nr">1e</span>
+      <span class="proto-proto">PROTO</span>
+      <span class="proto-type">TYPE</span>
+    </div>
+  </div>
+  <div class="proto-rechts rv d2">
+    <div class="proto-img-wrap"><img src="imgs/p13_img14.jpeg" alt="1e Prototype overzicht" style="max-height:46vh;" /></div>
+    <div class="proto-img-wrap"><img src="imgs/p13_img15.jpeg" alt="1e Prototype detail" style="max-height:46vh;" /></div>
+  </div>
+</section>
+
+<!-- ══════════════════════════
+     P14 — 2e PROTOTYPE
+══════════════════════════ -->
+<section class="proto" id="p14">
+  <div class="proto-links rv-left">
+    <div>
+      <span class="proto-nr">2e</span>
+      <span class="proto-proto">PROTO</span>
+      <span class="proto-type">TYPE</span>
+    </div>
+  </div>
+  <div class="proto-rechts rv d2">
+    <div class="proto-grid">
+      <div class="proto-img-wrap"><img src="imgs/p14_img16.jpeg" alt="Transistor radio in vaas" /></div>
+      <div class="proto-img-wrap"><img src="imgs/p14_img17.jpeg" alt="Cassettebandje in vaas" /></div>
+      <div class="proto-img-wrap"><img src="imgs/p14_img18.jpeg" alt="CD in vaas" /></div>
+      <div class="proto-img-wrap"><img src="imgs/p14_img19.jpeg" alt="Videoband in vaas" /></div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════
+     P15 — 3e PROTOTYPE
+══════════════════════════ -->
+<section class="proto" id="p15">
+  <div class="proto-links rv-left">
+    <div>
+      <span class="proto-nr">3e</span>
+      <span class="proto-proto">PROTO</span>
+      <span class="proto-type">TYPE</span>
+    </div>
+  </div>
+  <div class="proto-rechts rv d2">
+    <div class="proto-img-wrap" style="flex:1">
+      <img src="imgs/p15_img20.jpeg" alt="3e Prototype installatie" style="height:100%;object-fit:cover;" />
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════
+     FOTOSPREADS 16–18
+══════════════════════════ -->
+<div class="spread rv"><img src="imgs/page_16.jpg" alt="Installatie buiten" /></div>
+<div class="spread rv"><img src="imgs/page_17.jpg" alt="Bezoekers interactie" /></div>
+<div class="spread rv"><img src="imgs/page_18.jpg" alt="Handgeschreven labels" /></div>
+
+<script>
+/* ── Cursor ── */
+const cur = document.getElementById('cursor');
+const ring = document.getElementById('cursor-ring');
+let mx = 0, my = 0;
+document.addEventListener('mousemove', e => {
+  mx = e.clientX; my = e.clientY;
+  cur.style.left = mx + 'px'; cur.style.top = my + 'px';
+  ring.style.left = mx + 'px'; ring.style.top = my + 'px';
+});
+document.querySelectorAll('img, h2, .p5-item').forEach(el => {
+  el.addEventListener('mouseenter', () => { cur.style.width = '20px'; cur.style.height = '20px'; ring.style.width = '60px'; ring.style.height = '60px'; });
+  el.addEventListener('mouseleave', () => { cur.style.width = '10px'; cur.style.height = '10px'; ring.style.width = '36px'; ring.style.height = '36px'; });
+});
+
+/* ── Progress bar ── */
+const prog = document.getElementById('prog');
+window.addEventListener('scroll', () => {
+  prog.style.width = (scrollY / (document.body.scrollHeight - innerHeight) * 100) + '%';
+}, { passive: true });
+
+/* ── Hero entrance ── */
+window.addEventListener('load', () => {
+  setTimeout(() => {
+    document.getElementById('p1').classList.add('loaded');
+    setTimeout(() => {
+      document.getElementById('p1').classList.add('loaded2');
+      document.querySelectorAll('#p1 .rv, #p1 .split-word').forEach(el => {
+        el.classList.add('in');
+      });
+    }, 800);
+  }, 100);
+});
+
+/* ── Intersection Observer (reveal) ── */
+const io = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (!e.isIntersecting) return;
+    e.target.classList.add('in');
+
+    /* stat bars & counters */
+    e.target.querySelectorAll('.stat-fill').forEach(bar => {
+      bar.style.width = bar.dataset.pct + '%';
+    });
+    e.target.querySelectorAll('.stat-pct[data-target]').forEach(el => {
+      animateNum(el, parseInt(el.dataset.target));
+    });
+
+    /* p7 bubbles */
+    e.target.querySelectorAll('.p7-bubble').forEach(b => b.classList.add('in'));
+
+    /* p12 rituals text */
+    const rit = e.target.querySelector('.p12-rituals');
+    if (rit) setTimeout(() => rit.classList.add('in'), 400);
+
+    io.unobserve(e.target);
+  });
+}, { threshold: 0.12 });
+
+document.querySelectorAll('.rv, .rv-left, .rv-right, .rv-scale').forEach(el => io.observe(el));
+document.querySelectorAll('section, .spread').forEach(el => io.observe(el));
+
+/* ── Counter animation ── */
+function animateNum(el, target) {
+  let cur = 0;
+  const step = target / 50;
+  const t = setInterval(() => {
+    cur = Math.min(cur + step, target);
+    el.textContent = Math.round(cur) + '%';
+    if (cur >= target) clearInterval(t);
+  }, 22);
+}
+
+/* ── Parallax on scroll ── */
+const parallaxMap = [
+  { el: document.querySelector('.p3-links img'),      speed: .06 },
+  { el: document.querySelector('#p7 img.achtergrond'), speed: .08 },
+  { el: document.querySelector('.p11-rechts img'),    speed: .05 },
+  { el: document.querySelector('.p12-links img'),     speed: .07 },
+];
+window.addEventListener('scroll', () => {
+  parallaxMap.forEach(({ el, speed }) => {
+    if (!el) return;
+    const rect = el.getBoundingClientRect();
+    const mid = rect.top + rect.height / 2 - innerHeight / 2;
+    el.style.transform = `translateY(${mid * speed}px)`;
+  });
+}, { passive: true });
+
+/* ── Side nav dots — active section ── */
+const sections = ['p1','p2','p3','p4','p5','p6','p7','p8','p9','p10','p11','p12','p13','p14','p15'];
+const dots = document.querySelectorAll('.dot');
+dots.forEach(d => {
+  d.addEventListener('click', () => {
+    document.getElementById(d.dataset.target)?.scrollIntoView({ behavior: 'smooth' });
+  });
+});
+const secObserver = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      const idx = sections.indexOf(e.target.id);
+      dots.forEach((d, i) => d.classList.toggle('active', i === idx));
+    }
+  });
+}, { threshold: 0.4 });
+sections.forEach(id => { const el = document.getElementById(id); if (el) secObserver.observe(el); });
+</script>
+</body>
+</html>
