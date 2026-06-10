@@ -191,13 +191,13 @@
       display: flex; align-items: center; justify-content: center;
       overflow: hidden; position: relative;
     }
-    .p2-rechts svg {
-      width: 55%; max-width: 280px;
-      animation: cassetteSpin 8s linear infinite;
-      transform-origin: center;
+    .p2-cassette {
+      width: 100%; height: 100%;
+      object-fit: cover; display: block;
+      animation: cassetteDrift 8s ease-in-out infinite;
     }
-    @keyframes cassetteSpin {
-      0%,100%{transform:rotate(0deg)} 20%{transform:rotate(5deg)} 80%{transform:rotate(-5deg)}
+    @keyframes cassetteDrift {
+      0%,100%{transform:scale(1)} 50%{transform:scale(1.03)}
     }
 
     /* ─────────────────────────
@@ -618,29 +618,7 @@
     </div>
   </div>
   <div class="p2-rechts rv">
-    <svg viewBox="0 0 220 290" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <rect x="8" y="22" width="204" height="248" rx="14" stroke="white" stroke-width="6"/>
-      <rect x="38" y="8"  width="34" height="22" rx="4" stroke="white" stroke-width="4"/>
-      <rect x="148" y="8" width="34" height="22" rx="4" stroke="white" stroke-width="4"/>
-      <rect x="24" y="52" width="172" height="110" rx="7" stroke="white" stroke-width="4"/>
-      <circle cx="76"  cy="107" r="32" stroke="white" stroke-width="4"/>
-      <circle cx="76"  cy="107" r="11" stroke="white" stroke-width="3"/>
-      <line x1="76" y1="75" x2="76" y2="94" stroke="white" stroke-width="2"/>
-      <line x1="76" y1="120" x2="76" y2="139" stroke="white" stroke-width="2"/>
-      <line x1="44" y1="107" x2="63" y2="107" stroke="white" stroke-width="2"/>
-      <line x1="89" y1="107" x2="108" y2="107" stroke="white" stroke-width="2"/>
-      <circle cx="144" cy="107" r="32" stroke="white" stroke-width="4"/>
-      <circle cx="144" cy="107" r="11" stroke="white" stroke-width="3"/>
-      <line x1="144" y1="75" x2="144" y2="94" stroke="white" stroke-width="2"/>
-      <line x1="144" y1="120" x2="144" y2="139" stroke="white" stroke-width="2"/>
-      <line x1="112" y1="107" x2="131" y2="107" stroke="white" stroke-width="2"/>
-      <line x1="157" y1="107" x2="176" y2="107" stroke="white" stroke-width="2"/>
-      <path d="M76 139 Q76 165 110 165 Q144 165 144 139" stroke="white" stroke-width="3" fill="none"/>
-      <circle cx="62"  cy="235" r="9" stroke="white" stroke-width="3"/>
-      <circle cx="110" cy="235" r="9" stroke="white" stroke-width="3"/>
-      <circle cx="158" cy="235" r="9" stroke="white" stroke-width="3"/>
-      <rect x="28" y="192" width="164" height="28" rx="4" stroke="white" stroke-width="2"/>
-    </svg>
+    <img src="imgs/p2_cassette.png" alt="Cassettebandje" class="p2-cassette" />
   </div>
 </section>
 
