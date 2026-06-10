@@ -204,18 +204,29 @@
        P3 — FOTO'S AANLEIDING
     ───────────────────────── */
     #p3 { min-height: 100vh; display: grid; grid-template-columns: 1fr 1fr; }
-    .p3-links { overflow: hidden; position: relative; }
-    .p3-links img {
+    .p3-links {
+      overflow: hidden; position: relative;
+      display: flex; flex-direction: column;
+    }
+    .p3-links-img { overflow: hidden; flex: 1; }
+    .p3-links-img img {
       width: 100%; height: 100%; object-fit: cover; display: block;
+      will-change: transform;
       transition: transform .8s ease;
     }
-    .p3-links:hover img { transform: scale(1.04); }
+    .p3-links-img:hover img { transform: scale(1.04); }
+    .p3-links-caption {
+      background: var(--wit); padding: 1.5vw 2vw;
+      border-top: 1px solid #ddd;
+    }
     .p3-rechts {
       background: var(--wit); padding: 5vw;
       display: flex; flex-direction: column; justify-content: space-between; gap: 3rem;
     }
+    .p3-foto-boven { overflow: hidden; }
     .p3-foto-boven img {
       width: 100%; display: block; object-fit: cover; max-height: 42vh;
+      will-change: transform;
       transition: transform .6s ease;
     }
     .p3-foto-boven:hover img { transform: scale(1.02); }
@@ -465,8 +476,12 @@
     /* ─────────────────────────
        FOTO SPREADS
     ───────────────────────── */
-    .spread { display: block; line-height: 0; overflow: hidden; }
-    .spread img { width: 100%; height: auto; display: block; transition: transform .1s linear; }
+    #spreads { display: flex; }
+    .spread { flex: 1; line-height: 0; overflow: hidden; }
+    .spread img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    @media (max-width: 900px) {
+      #spreads { flex-direction: column; }
+    }
 
     /* ─────────────────────────
        MEDIA QUERIES
@@ -538,6 +553,9 @@
 
       .proto-nr    { font-size: clamp(7rem, 28vw, 12rem); }
       .proto-proto, .proto-type { font-size: clamp(3.5rem, 14vw, 7rem); }
+      .proto { min-height: auto; }
+      .proto-links { padding: 6vw 6vw 3vw; }
+      .proto-rechts { padding: 3vw 6vw 8vw; }
 
       .p9-col, #p9 { padding: 6vw; gap: 3vw; }
       .p10-links, .p10-rechts { padding: 7vw 6vw; }
@@ -631,17 +649,19 @@
 ══════════════════════════ -->
 <section id="p3">
   <div class="p3-links rv-left">
-    <img src="imgs/p3_img0.jpeg" alt="Videotheek video Palace" />
+    <div class="p3-links-img">
+      <img src="imgs/p3_img0.jpeg" alt="Videotheek video Palace" />
+    </div>
+    <div class="p3-links-caption">
+      <p class="p3-norm">Het wekelijkse bezoekje in het weekend met mijn vader bij</p>
+      <span class="p3-bold">Videotheek video Palace</span>
+      <span class="p3-adres">Jonker Fransstraat 26-28</span>
+    </div>
   </div>
   <div class="p3-rechts">
     <div class="p3-foto-boven rv d1">
       <img src="imgs/p3_img1.jpeg" alt="Platencollectie thuis" />
       <p class="p3-caption">Mijn platencollectie thuis</p>
-    </div>
-    <div class="rv d3">
-      <p class="p3-norm">Het wekelijkse bezoekje in het weekend<br>met mijn vader bij</p>
-      <span class="p3-bold">Videotheek video Palace</span>
-      <span class="p3-adres">Jonker Fransstraat 26-28</span>
     </div>
   </div>
 </section>
@@ -920,9 +940,11 @@
 <!-- ══════════════════════════
      FOTOSPREADS 16–18
 ══════════════════════════ -->
-<div class="spread rv"><img src="imgs/page_16.jpg" alt="Installatie buiten" /></div>
-<div class="spread rv"><img src="imgs/page_17.jpg" alt="Bezoekers interactie" /></div>
-<div class="spread rv"><img src="imgs/page_18.jpg" alt="Handgeschreven labels" /></div>
+<div id="spreads">
+  <div class="spread rv"><img src="imgs/page_16.jpg" alt="Installatie buiten" /></div>
+  <div class="spread rv"><img src="imgs/page_17.jpg" alt="Bezoekers interactie" /></div>
+  <div class="spread rv"><img src="imgs/page_18.jpg" alt="Handgeschreven labels" /></div>
+</div>
 
 <script>
 /* ── Cursor ── */
@@ -997,19 +1019,27 @@ function animateNum(el, target) {
   }, 22);
 }
 
-/* ── Parallax on scroll ── */
+/* ── Parallax on scroll (RAF-throttled, GPU-composited) ── */
+const isMobile = () => window.innerWidth < 900;
 const parallaxMap = [
-  { el: document.querySelector('.p3-links img'),      speed: .06 },
-  { el: document.querySelector('#p7 img.achtergrond'), speed: .08 },
-  { el: document.querySelector('.p11-rechts img'),    speed: .05 },
-  { el: document.querySelector('.p12-links img'),     speed: .07 },
+  { el: document.querySelector('.p3-links-img img'), speed: .05 },
+  { el: document.querySelector('#p7 img.achtergrond'), speed: .07 },
+  { el: document.querySelector('.p11-rechts img'),    speed: .04 },
+  { el: document.querySelector('.p12-links img'),     speed: .06 },
 ];
+parallaxMap.forEach(({ el }) => { if (el) el.style.willChange = 'transform'; });
+let ticking = false;
 window.addEventListener('scroll', () => {
-  parallaxMap.forEach(({ el, speed }) => {
-    if (!el) return;
-    const rect = el.getBoundingClientRect();
-    const mid = rect.top + rect.height / 2 - innerHeight / 2;
-    el.style.transform = `translateY(${mid * speed}px)`;
+  if (ticking || isMobile()) return;
+  ticking = true;
+  requestAnimationFrame(() => {
+    parallaxMap.forEach(({ el, speed }) => {
+      if (!el) return;
+      const rect = el.getBoundingClientRect();
+      const mid = rect.top + rect.height / 2 - innerHeight / 2;
+      el.style.transform = `translate3d(0, ${mid * speed}px, 0)`;
+    });
+    ticking = false;
   });
 }, { passive: true });
 
